@@ -3,102 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Внутренний Ассистент | Compliance</title>
+    <title>Внутренний Ассистент</title>
     <style>
-        /* Общие стили для экрана блокировки */
         body, html {
-            margin: 0;
-            padding: 0;
-            width: 100%;
-            height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: #f4f6f9;
+            margin: 0; padding: 0; width: 100%; height: 100%;
+            overflow: hidden; background-color: #f4f6f9;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* Окно ввода пароля */
+        /* Экран блокировки (пароль) */
         #auth-screen {
-            display: flex;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: #ffffff;
-            z-index: 9999;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: #ffffff; display: flex; justify-content: center;
+            align-items: center; flex-direction: column; z-index: 999999 !important;
         }
-
         .auth-box {
-            text-align: center;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-            background: #fff;
-            border: 1px solid #eaeaea;
-            width: 320px;
+            text-align: center; padding: 30px; border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: #fff;
+            border: 1px solid #eaeaea; width: 320px;
         }
-
-        .auth-box h2 {
-            margin-bottom: 20px;
-            font-size: 20px;
-            color: #333;
-        }
-
+        .auth-box h2 { margin-bottom: 20px; font-size: 20px; color: #333; }
         .auth-box input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
+            width: 100%; padding: 12px; margin-bottom: 15px;
+            border: 1px solid #ccc; border-radius: 6px; font-size: 16px; box-sizing: border-box;
         }
-
         .auth-box button {
-            width: 100%;
-            padding: 12px;
-            background-color: #007aff;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: 600;
+            width: 100%; padding: 12px; background-color: #007aff; color: white;
+            border: none; border-radius: 6px; font-size: 16px; cursor: pointer; font-weight: 600;
         }
+        #error-msg { color: #ff3b30; font-size: 14px; margin-top: 10px; display: none; }
 
-        .auth-box button:hover {
-            background-color: #0062cc;
-        }
-
-        #error-msg {
-            color: #ff3b30;
-            font-size: 14px;
-            margin-top: 10px;
-            display: none;
-        }
-
-        /* Стили для того, чтобы заставить виджет Яндекса быть во весь экран */
-        /* Внимание: Мы принудительно растягиваем контейнеры, которые создает скрипт Яндекса */
-        div[class^="yandex-dialogs-widget"], 
-        iframe[class^="yandex-dialogs-widget"],
-        .yandex-dialogs-widget,
-        iframe {
+        /* ЖЕСТКОЕ ПРИНУДИТЕЛЬНОЕ РАСТЯГИВАНИЕ ВИДЖЕТА НА ВЕСЬ ЭКРАН */
+        /* Находим любые iframe и блоки, создаваемые скриптом, и убираем их относительное позиционирование */
+        iframe, 
+        div[class*="widget"], 
+        div[id*="widget"],
+        iframe[class*="widget"] {
             position: fixed !important;
             top: 0 !important;
             left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            max-height: 100vh !important;
+            width: 100vw !important;
+            height: 100vh !important;
             max-width: 100vw !important;
+            max-height: 100vh !important;
             border: none !important;
             box-shadow: none !important;
             border-radius: 0 !important;
-            z-index: 1000 !important;
+            transform: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            z-index: 99999 !important;
+        }
+
+        /* Прячем кнопку «закрыть/крестик» самого виджета, если она отображается отдельным элементом */
+        button[class*="close"], div[class*="close"] {
+            display: none !important;
         }
     </style>
 </head>
 <body>
 
-    <!-- ЭКРАН С ПАРОЛЕМ -->
+    <!-- ЭКРАН АВТОРИЗАЦИИ -->
     <div id="auth-screen">
         <div class="auth-box">
             <h2>Доступ ограничен</h2>
@@ -108,9 +73,8 @@
         </div>
     </div>
 
-    <!-- СКРИПТ ПРОВЕРКИ ПАРОЛЯ -->
     <script>
-        // ВАШ ПАРОЛЬ (измените '1234' на свой секретный пароль)
+        // ВАШ СЕКРЕТНЫЙ ПАРОЛЬ (измените на свой)
         const SECRET_PASSWORD = "Слон3509"; 
 
         function checkPassword() {
@@ -119,29 +83,27 @@
             const authScreen = document.getElementById('auth-screen');
 
             if (input === SECRET_PASSWORD) {
-                // Скрываем экран авторизации и показываем чат
-                authScreen.style.display = 'none';
-                // Запоминаем, что пользователь авторизован в рамках текущей вкладки
-                sessionStorage.setItem('is_auth', 'true');
+                authScreen.style.setProperty('display', 'none', 'important');
+                sessionStorage.setItem('is_auth_compliance', 'true');
             } else {
                 errorMsg.style.display = 'block';
                 document.getElementById('password-input').value = '';
             }
         }
 
-        // Проверка: если пользователь уже вводил пароль в этой вкладке, не спрашивать заново
-        if (sessionStorage.getItem('is_auth') === 'true') {
-            document.getElementById('auth-screen').style.display = 'none';
+        // Автоматический вход, если пароль уже вводился в этой вкладке
+        if (sessionStorage.getItem('is_auth_compliance') === 'true') {
+            document.getElementById('auth-screen').style.setProperty('display', 'none', 'important');
         }
     </script>
 
-    <!-- !!! ВСТАВЬТЕ ВАШ КОД СКРИПТА ЯНДЕКСА НИЖЕ (СТРОГО ПЕРЕД СЛОВОМ </body>) !!! -->
+    <!-- ВСТАВЬТЕ ВАШ КОД ИЗ ЯНДЕКС AI STUDIO СТРОГО НИЖЕ ЭТОЙ СТРОКИ -->
+
 <script
   src="https://widget.aistudio.yandexcloud.net/scripts/widget-loader.js?channel-id=aacrbf85bgdnlivjo1t7"
   async
 ></script>
-
-    <!-- !!! КОНЕЦ КОДА ЯНДЕКСА !!! -->
+    <!-- КОНЕЦ КОДА ЯНДЕКСА -->
 
 </body>
 </html>
